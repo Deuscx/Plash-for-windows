@@ -1,0 +1,4 @@
+provider: github
+owner: Deuscx
+repo: starter-vitesse-electron
+updaterCacheDirName: starter-updater

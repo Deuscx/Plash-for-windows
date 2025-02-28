@@ -1,0 +1,91 @@
+name: publish release
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*.*.*'
+
+# Workflow's jobs
+jobs:
+  # job's id
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    permissions:
+      contents: write
+    # job's name
+    name: build and release electron app
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: build windows
+        if: matrix.os == 'windows-latest'
+        run: pnpm run build:win
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build linux
+        if: matrix.os == 'ubuntu-latest'
+        run: pnpm run build:linux
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # cleanup artifacts in release
+      # - name: cleanup artifacts
+      #   run: |
+      #     rm -rf "release/!(*.exe|*.dmg)"
+
+      - run: npx changelogithub
+        if: github.ref_type == 'tag' || github.event.inputs.tag_version == 'true'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # upload artifacts
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.deb
+            dist/*.rpm
+            dist/*.AppImage
+            dist/latest.yml
+            dist/*.tar.gz
+          retention-days: 90
+          if-no-files-found: ignore
+
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag' || github.event.inputs.tag_version == 'true'
+        with:
+          draft: false
+          prerelease: true
+          files: |
+            dist/*.exe
+            dist/*.deb
+            dist/*.rpm
+            dist/*.AppImage
+            dist/latest.yml
+            dist/*.tar.gz
