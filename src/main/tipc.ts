@@ -1,5 +1,6 @@
 import { tipc } from '@egoist/tipc/main'
 import { shell } from 'electron'
+import { attach } from 'electron-as-wallpaper'
 import { windowManager } from '~main/windows/manager'
 import { storePath } from './store'
 import { applyUpdate, checkUpdate, downloadUpdate } from './update'
@@ -12,6 +13,29 @@ export const router = {
     .action(async ({ input }) => {
       windowManager.get('second').loadURL(input)
     }),
+
+  attachWallpaper: t.procedure
+    .action(async () => {
+      const secondWindow = windowManager.get('second')
+      if (!secondWindow)
+        return
+      attach(secondWindow, {
+        transparent: true,
+        forwardKeyboardInput: true,
+        forwardMouseMove: true,
+        forwardMouseClick: true,
+        // forwardMouseInput: true,
+      })
+    }),
+
+  // detachWallpaper: t.procedure
+  //   .action(async () => {
+  //     const secondWindow = windowManager.get('second')
+  //     if (!secondWindow)
+  //       return
+
+  //     detach(secondWindow)
+  //   }),
 
   openStoreFile: t.procedure
     .action(async () => {

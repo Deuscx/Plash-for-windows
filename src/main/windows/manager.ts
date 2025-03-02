@@ -1,6 +1,5 @@
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { BrowserWindow } from 'electron'
-import { isDev } from '~main/constants'
 import { mainWinConfig } from './main'
 import { secondWindowConfig } from './second'
 
@@ -25,7 +24,7 @@ class WindowManager {
     const win = new BrowserWindow(windowConfig.options)
     this.windowMap.set(name, win)
 
-    isDev && win.webContents.openDevTools({ mode: 'detach' })
+    // isDev && win.webContents.openDevTools({ mode: 'detach' })
     win.on('closed', () => {
       this.windowMap.delete(name)
     })

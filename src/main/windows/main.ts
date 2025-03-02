@@ -1,7 +1,6 @@
 import type { WindowCreateConfig } from './manager'
 import { join } from 'node:path'
 import process from 'node:process'
-import { shell } from 'electron'
 import { store } from '~main/store'
 import { isDev, preloadPath } from '../constants'
 
@@ -19,11 +18,6 @@ export const mainWinConfig: WindowCreateConfig = {
   callback(window, _windowManager) {
     window.on('ready-to-show', () => {
       window.show()
-    })
-
-    window.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url)
-      return { action: 'deny' }
     })
 
     // HMR for renderer base on electron-vite cli.

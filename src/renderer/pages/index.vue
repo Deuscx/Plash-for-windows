@@ -16,6 +16,10 @@ function go() {
 function createWindow() {
   client.newWindow('https://bing.com')
 }
+
+function attachWallpaper() {
+  client.attachWallpaper()
+}
 </script>
 
 <template>
@@ -58,6 +62,12 @@ function createWindow() {
         @click="() => client.openStoreFile()"
       >
         Open Store Path
+      </button>
+      <button
+        class="m-3 text-sm btn"
+        @click="attachWallpaper"
+      >
+        Attach Wallpaper
       </button>
       <AppUpdate />
     </div>
